@@ -94,6 +94,27 @@ h1 span { margin: 0 .12em; color: var(--copper); font: .58em var(--font-mono); }
 .portrait-shell { width: 100%; aspect-ratio: 4 / 5; position: relative; filter: drop-shadow(0 28px 42px rgba(0,0,0,.58)); }
 .portrait-viewport { position: absolute; inset: 0; overflow: hidden; border: 1px solid rgba(255,255,255,.3); background: #bdb8af; box-shadow: inset 0 0 0 5px rgba(0,0,0,.44), inset 0 0 40px rgba(0,0,0,.2); }
 .portrait-viewport img { width: 100%; height: 100%; display: block; object-fit: cover; object-position: center; user-select: none; }
+.portrait-glasses {
+  --glasses-color: rgb(87 94 102);
+  --glasses-top: 44.1%;
+  --glasses-width: 62%;
+  position: absolute;
+  z-index: 4;
+  left: 50%;
+  top: var(--glasses-top);
+  width: var(--glasses-width);
+  height: 14.5%;
+  transform: translate(-50%,-50%);
+  pointer-events: none;
+  filter: drop-shadow(0 2px 1px rgba(0,0,0,.45));
+}
+.glasses-lens { position: absolute; top: 0; width: 43%; height: 100%; border: clamp(1.5px,.42vw,3px) solid var(--glasses-color); border-radius: 13% 13% 24% 24%; box-shadow: inset 0 0 0 1px rgba(255,255,255,.18), 0 0 1px rgba(255,255,255,.45); }
+.glasses-lens::before { content: ""; position: absolute; top: 8%; width: 18%; height: clamp(1.5px,.42vw,3px); border-radius: 999px; background: var(--glasses-color); box-shadow: 0 1px 0 rgba(255,255,255,.22); }
+.glasses-lens--left { left: 0; transform: rotate(1deg); }
+.glasses-lens--left::before { right: 100%; transform: rotate(8deg); transform-origin: right center; }
+.glasses-lens--right { right: 0; transform: rotate(-1deg); }
+.glasses-lens--right::before { left: 100%; transform: rotate(-8deg); transform-origin: left center; }
+.glasses-bridge { position: absolute; z-index: 2; left: 41.5%; top: 18%; width: 17%; height: 22%; border-top: clamp(1.5px,.42vw,3px) solid var(--glasses-color); border-radius: 50%; }
 .portrait-grade, .scan-grid { position: absolute; inset: 0; pointer-events: none; }
 .portrait-grade { background: linear-gradient(180deg, rgba(101,245,255,.035), transparent 40%, rgba(255,122,38,.06)); box-shadow: inset 0 0 58px rgba(0,0,0,.25); }
 .scan-grid { opacity: .17; background: linear-gradient(90deg, transparent 49.86%, rgba(101,245,255,.5) 50%, transparent 50.14%), linear-gradient(transparent 49.86%, rgba(255,122,38,.45) 50%, transparent 50.14%); }
@@ -110,14 +131,16 @@ h1 span { margin: 0 .12em; color: var(--copper); font: .58em var(--font-mono); }
 .joystick-heading span { color: var(--muted); font-size: 7px; letter-spacing: .14em; }
 .joystick-heading output { color: var(--cyan); font-size: 9px; font-variant-numeric: tabular-nums; }
 .joystick {
-  --joy-left: 39.76%;
-  --joy-top: 50%;
+  --joy-left: 39.44%;
+  --joy-top: 42%;
+  --lever-length: 82px;
+  --lever-angle: -104deg;
   position: relative;
   height: clamp(128px, 15vh, 162px);
   overflow: hidden;
   border: 2px solid #565c5f;
   border-radius: 32px;
-  cursor: crosshair;
+  cursor: grab;
   touch-action: none;
   user-select: none;
   background:
@@ -128,7 +151,7 @@ h1 span { margin: 0 .12em; color: var(--copper); font: .58em var(--font-mono); }
   outline: none;
 }
 .joystick:focus-visible { border-color: var(--cyan); box-shadow: inset 0 0 0 6px #080a0b, inset 0 0 36px #000, 0 0 0 2px rgba(101,245,255,.55), 0 0 26px rgba(101,245,255,.22); }
-.joystick.is-active { border-color: var(--copper-hot); }
+.joystick.is-active { border-color: var(--copper-hot); cursor: grabbing; }
 .joystick-cross { position: absolute; inset: 18% 13%; pointer-events: none; }
 .joystick-cross::before, .joystick-cross::after { content: ""; position: absolute; background: repeating-linear-gradient(90deg, rgba(255,193,104,.7) 0 1px, transparent 1px 18px); filter: drop-shadow(0 0 4px rgba(255,122,38,.5)); }
 .joystick-cross::before { left: 0; right: 0; top: 50%; height: 2px; }
@@ -136,25 +159,59 @@ h1 span { margin: 0 .12em; color: var(--copper); font: .58em var(--font-mono); }
 .joystick-cross span, .joystick-cross i { position: absolute; pointer-events: none; }
 .joystick-cross span { left: 25%; right: 25%; top: calc(50% - 4px); height: 8px; border-left: 1px solid var(--copper); border-right: 1px solid var(--copper); }
 .joystick-cross i { top: 25%; bottom: 25%; left: calc(50% - 4px); width: 8px; border-top: 1px solid var(--cyan); border-bottom: 1px solid var(--cyan); }
-.joystick-stick {
+.joystick-base {
   position: absolute;
   z-index: 4;
+  left: 50%;
+  top: 88%;
+  width: 84px;
+  height: 36px;
+  transform: translate(-50%,-50%);
+  display: grid;
+  place-items: center;
+  border: 2px solid #c7c9c6;
+  border-radius: 50%;
+  background: radial-gradient(ellipse at 50% 38%, #687175 0 13%, #171b1d 28%, #050607 62%, #3b4245 73%, #090b0c 76%);
+  box-shadow: 0 8px 12px rgba(0,0,0,.72), 0 0 0 5px rgba(0,0,0,.5), 0 0 22px rgba(255,122,38,.28);
+  pointer-events: none;
+}
+.joystick-base span { width: 28px; height: 18px; border: 2px solid #8b9294; border-radius: 50%; background: #070909; box-shadow: inset 0 3px 7px #000, 0 0 8px rgba(101,245,255,.22); }
+.joystick-arm {
+  position: absolute;
+  z-index: 3;
+  left: 50%;
+  top: 88%;
+  width: var(--lever-length);
+  height: 13px;
+  transform: translateY(-50%) rotate(var(--lever-angle));
+  transform-origin: left center;
+  border: 1px solid #d8dbd9;
+  border-radius: 999px;
+  background: linear-gradient(180deg,#fbfbf5 0 13%,#90989b 28%,#313739 58%,#c7cdcd 79%,#5b6264 100%);
+  box-shadow: 0 4px 7px rgba(0,0,0,.62), 0 0 7px rgba(255,255,255,.24);
+  pointer-events: none;
+}
+.joystick-arm span { position: absolute; left: 12px; right: 11px; top: 2px; height: 2px; border-radius: 99px; background: rgba(255,255,255,.72); }
+.joystick-stick {
+  position: absolute;
+  z-index: 5;
   left: var(--joy-left);
   top: var(--joy-top);
-  width: 64px;
-  height: 64px;
+  width: 70px;
+  height: 70px;
   transform: translate(-50%, -50%);
   display: grid;
   place-items: center;
-  border: 3px solid #d4d1c9;
+  border: 3px solid #e1d8c9;
   border-radius: 50%;
-  background: radial-gradient(circle at 36% 30%, #727b7e 0 8%, #24292b 27%, #080a0b 52%, #444b4e 68%, #111415 70%);
-  box-shadow: 0 9px 15px rgba(0,0,0,.65), 0 0 0 6px rgba(0,0,0,.4), 0 0 26px rgba(255,122,38,.62);
+  background: radial-gradient(circle at 34% 27%, #ffd0a3 0 5%, #d95d24 13%, #7a1c0e 49%, #260604 72%, #0e0202 100%);
+  box-shadow: 0 10px 16px rgba(0,0,0,.7), inset -8px -10px 15px rgba(0,0,0,.5), inset 7px 6px 12px rgba(255,193,104,.32), 0 0 0 7px rgba(0,0,0,.34), 0 0 30px rgba(255,122,38,.65);
   pointer-events: none;
   transition: left 80ms linear, top 110ms cubic-bezier(.2,.8,.2,1), box-shadow .16s;
 }
 .joystick.is-active .joystick-stick { transition: none; box-shadow: 0 7px 12px rgba(0,0,0,.68), 0 0 0 6px rgba(0,0,0,.45), 0 0 34px rgba(101,245,255,.7); }
-.joystick-stick span { width: 13px; height: 13px; border: 2px solid var(--copper-hot); border-radius: 50%; background: #090b0c; box-shadow: 0 0 12px var(--copper); }
+.joystick-stick span { width: 19px; height: 19px; display: grid; place-items: center; border: 2px solid rgba(255,220,178,.72); border-radius: 50%; background: rgba(63,10,4,.52); box-shadow: inset 0 2px 4px #1d0201, 0 0 10px rgba(255,193,104,.58); }
+.joystick-stick span i { width: 5px; height: 5px; border-radius: 50%; background: #ffd28c; box-shadow: 0 0 9px var(--copper-hot); }
 .joystick-label { position: absolute; z-index: 2; color: #ecebe5; font-size: 9px; font-weight: 700; letter-spacing: .08em; pointer-events: none; }
 .joystick-label small { color: var(--muted); font: 7px var(--font-mono); }
 .joystick-label--left { left: 13px; top: 50%; transform: translateY(-50%); }

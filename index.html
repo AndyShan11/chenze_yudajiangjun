@@ -33,7 +33,12 @@
           <div class="portrait-console">
             <div class="portrait-shell">
               <div class="portrait-viewport">
-                <img id="portrait-frame" src="./lattice/a04-g04/10.webp" alt="31 岁、中性、陈泽到宇大将军第 11 帧" draggable="false" />
+                <img id="portrait-frame" src="./lattice/a08-g04/10.webp" alt="31 岁、中性、陈泽到宇大将军第 11 帧" draggable="false" />
+                <div id="portrait-glasses" class="portrait-glasses" aria-hidden="true">
+                  <span class="glasses-lens glasses-lens--left"></span>
+                  <span class="glasses-bridge"></span>
+                  <span class="glasses-lens glasses-lens--right"></span>
+                </div>
                 <div class="portrait-grade" aria-hidden="true"></div>
                 <div class="scan-grid" aria-hidden="true"></div>
                 <div class="frame-status" aria-hidden="true"><span>RIFE / SINGLE FRAME</span><b id="frame-counter">F11 / 31</b></div>
@@ -45,15 +50,17 @@
             </div>
 
             <div class="joystick-panel">
-              <div class="joystick-heading"><span>DUAL AXIS GAME STICK</span><output id="joystick-output">X 34 / Y 50</output></div>
+              <div class="joystick-heading"><span>DUAL AXIS SLOT LEVER</span><output id="joystick-output">X 34 / Y 50</output></div>
               <div id="joystick" class="joystick" role="group" tabindex="0" aria-label="二维游戏摇杆：左右控制人物，上下控制性别">
                 <div class="joystick-cross" aria-hidden="true"><span></span><i></i></div>
+                <div class="joystick-base" aria-hidden="true"><span></span></div>
+                <div class="joystick-arm" aria-hidden="true"><span></span></div>
                 <span class="joystick-label joystick-label--left">陈泽 <small>00</small></span>
                 <span class="joystick-label joystick-label--right"><small>100</small> 宇大将军</span>
                 <span class="joystick-label joystick-label--top">男 <small>M</small></span>
                 <span class="joystick-label joystick-label--center">中性 <small>N</small></span>
                 <span class="joystick-label joystick-label--bottom">女 <small>F</small></span>
-                <div id="joystick-stick" class="joystick-stick" aria-hidden="true"><span></span></div>
+                <div id="joystick-stick" class="joystick-stick" aria-hidden="true"><span><i></i></span></div>
               </div>
               <p id="joystick-help">拖动摇杆或使用方向键；按 Enter 回到正中</p>
               <input id="identity-slider" class="visually-hidden" type="range" min="0" max="100" step="0.1" value="34" tabindex="-1" aria-hidden="true" />
