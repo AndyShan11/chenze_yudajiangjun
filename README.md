@@ -1,20 +1,25 @@
-# 陈宇滑动变阻器
+# 陈泽 × 宇大将军三轴人像校准器
 
-一个完全静态、开源、无需登录的三轴人像滑动校准器。
+一个完全静态、开源、无需登录的三轴人像滑动变阻器。
 
-- 横轴：陈泽 ↔ 宇大将军
-- 纵轴：男 ↔ 女
-- 年龄轴：婴儿 ↔ 老人
+- 横轴：陈泽 → 宇大将军（31 张 RIFE 4.6 独立插帧）
+- 纵轴：男性 → 中性 → 女性
+- 年龄轴：婴儿 → 成人 → 老人
+- 任一时刻只显示一张完整人像，不使用透明度叠图
 - 支持鼠标、触摸和键盘操作
 - 无账号、无后端、无追踪，纯静态运行
 
 ## 在线使用
 
-GitHub Pages 部署完成后，可通过以下地址访问：
-
 <https://andyshan11.github.io/chenze_yudajiangjun/>
 
-作者主页：<https://andyshan11.github.io/>
+创作者主页：<https://andyshan11.github.io/>
+
+## 实现说明
+
+人物端点和中性锚点组成 9 条年龄/性别轨道。每条轨道使用开源的 [RIFE ncnn Vulkan](https://github.com/nihui/rife-ncnn-vulkan) 生成 31 张清晰的身份中间帧，网页根据滑杆位置直接切换独立 WebP 文件，不进行多图透明混合。
+
+页面交互参考了 [liang-intensity-calibrator](https://github.com/Lichtspektrum/liang-intensity-calibrator) 的预插帧思路。
 
 ## 本地运行
 
@@ -31,12 +36,11 @@ pnpm dev
 pnpm build
 ```
 
-产物位于 `dist/`，可以部署到任意静态托管服务。
+产物位于 `dist/`，可部署到任意静态托管服务。
 
 ## 部署
 
-仓库内置 GitHub Pages 工作流。向 `main` 分支推送后会自动构建并发布。
-若首次使用，请在仓库的 **Settings → Pages** 中将 Source 设为 **GitHub Actions**。
+仓库内置 GitHub Pages 工作流。向 `main` 分支推送提交后会自动构建并发布。
 
 ## 许可
 

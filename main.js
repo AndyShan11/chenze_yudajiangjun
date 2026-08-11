@@ -1,16 +1,17 @@
-const ages = ["baby", "adult", "elder"];
-const identities = ["chenze", "general"];
-const genders = ["male", "female"];
-
-const portraits = ages.flatMap((age) =>
-  identities.flatMap((identity) =>
-    genders.map((gender) => ({ age, identity, gender })),
-  ),
-);
-
+const FRAME_COUNT = 31;
+const genderStates = [
+  { value: 0, key: "male", label: "男性", meter: "男" },
+  { value: 50, key: "neutral", label: "中性", meter: "中" },
+  { value: 100, key: "female", label: "女性", meter: "女" },
+];
+const ageStates = [
+  { value: 0, key: "baby", label: "婴儿", age: 1 },
+  { value: 50, key: "adult", label: "成人", age: 31 },
+  { value: 100, key: "elder", label: "老人", age: 88 },
+];
 const elements = {
   root: document.querySelector("#calibrator"),
-  stack: document.querySelector("#portrait-stack"),
+  portrait: document.querySelector("#portrait-frame"),
   identity: document.querySelector("#identity-slider"),
   gender: document.querySelector("#gender-slider"),
   age: document.querySelector("#age-slider"),
@@ -18,72 +19,78 @@ const elements = {
   genderOutput: document.querySelector("#gender-output"),
   ageOutput: document.querySelector("#age-output"),
   ageRailOutput: document.querySelector("#age-rail-output"),
+  frameCounter: document.querySelector("#frame-counter"),
   currentForm: document.querySelector("#current-form"),
   stateDetail: document.querySelector("#state-detail"),
 };
+const preloadedSeries = new Set();
+let requestedFrame = 0;
 
-const imageLayers = portraits.map((portrait) => {
-  const image = document.createElement("img");
-  image.src = `./portraits/${portrait.age}-${portrait.identity}-${portrait.gender}.webp`;
-  image.alt = "";
-  image.setAttribute("aria-hidden", "true");
-  image.draggable = false;
-  elements.stack.append(image);
-  return { ...portrait, image };
-});
-
-function getAgeWeights(value) {
-  const t = value / 100;
-  const adultPoint = 0.34;
-  if (t <= adultPoint) {
-    const adult = t / adultPoint;
-    return { baby: 1 - adult, adult, elder: 0 };
+function nearestState(states, value) {
+  return states.reduce((nearest, state) => Math.abs(state.value - value) < Math.abs(nearest.value - value) ? state : nearest);
+}
+function frameSource(age, gender, index) {
+  return `./frames/${age}-${gender}/${String(index).padStart(2, "0")}.webp`;
+}
+function preloadSeries(age, gender) {
+  const key = `${age}-${gender}`;
+  if (preloadedSeries.has(key)) return;
+  preloadedSeries.add(key);
+  for (let index = 0; index < FRAME_COUNT; index += 1) {
+    const image = new Image();
+    image.decoding = "async";
+    image.src = frameSource(age, gender, index);
   }
-  const elder = (t - adultPoint) / (1 - adultPoint);
-  return { baby: 0, adult: 1 - elder, elder };
 }
-
-function getDisplayAge(value) {
-  return Math.max(1, Math.round(1 + value * 0.89));
+function showIndependentFrame(source, alt) {
+  const request = ++requestedFrame;
+  const image = new Image();
+  image.decoding = "async";
+  image.src = source;
+  const commit = () => {
+    if (request !== requestedFrame) return;
+    elements.portrait.src = source;
+    elements.portrait.alt = alt;
+  };
+  if (image.complete) commit();
+  else image.decode().then(commit).catch(commit);
 }
-
+function identityLabel(value) {
+  if (value <= 12) return "陈泽";
+  if (value < 44) return "陈泽偏置";
+  if (value <= 56) return "陈泽 × 宇大将军";
+  if (value < 88) return "宇大将军偏置";
+  return "宇大将军";
+}
 function render() {
   const identity = Number(elements.identity.value);
-  const gender = Number(elements.gender.value);
-  const age = Number(elements.age.value);
-  const identityWeights = { chenze: 1 - identity / 100, general: identity / 100 };
-  const genderWeights = { male: 1 - gender / 100, female: gender / 100 };
-  const ageMix = getAgeWeights(age);
-
-  imageLayers.forEach((portrait) => {
-    portrait.image.style.opacity =
-      identityWeights[portrait.identity] *
-      genderWeights[portrait.gender] *
-      ageMix[portrait.age];
-  });
-
-  const identityName = identity < 28 ? "陈泽" : identity > 72 ? "宇大将军" : "陈泽 × 宇大将军";
-  const genderName = gender < 30 ? "男" : gender > 70 ? "女" : "中性过渡";
-  const displayAge = getDisplayAge(age);
-  const ageName = displayAge <= 6 ? "婴儿" : displayAge >= 70 ? "老人" : `${displayAge} 岁`;
-
+  const gender = nearestState(genderStates, Number(elements.gender.value));
+  const age = nearestState(ageStates, Number(elements.age.value));
+  const frameIndex = Math.round((identity / 100) * (FRAME_COUNT - 1));
+  const frameNumber = frameIndex + 1;
+  const person = identityLabel(identity);
+  const source = frameSource(age.key, gender.key, frameIndex);
+  const alt = `${age.label}、${gender.label}、${person}，第 ${frameNumber} 帧`;
   elements.root.style.setProperty("--identity", identity / 100);
-  elements.root.style.setProperty("--gender", gender / 100);
-  elements.root.style.setProperty("--age", age / 100);
+  elements.root.style.setProperty("--gender", gender.value / 100);
+  elements.root.style.setProperty("--age", age.value / 100);
   elements.identityOutput.value = String(Math.round(identity)).padStart(2, "0");
-  elements.genderOutput.value = String(Math.round(gender)).padStart(2, "0");
-  elements.ageOutput.value = String(displayAge).padStart(2, "0");
-  elements.ageRailOutput.value = String(displayAge).padStart(2, "0");
-  elements.currentForm.textContent = identityName;
-  elements.stateDetail.textContent = `${genderName} · ${ageName}`;
-  elements.stack.setAttribute("aria-label", `${ageName}，${genderName}，${identityName}`);
-  elements.identity.setAttribute("aria-valuetext", `${Math.round(identity)}%，${identityName}`);
-  elements.gender.setAttribute("aria-valuetext", `${Math.round(gender)}%，${genderName}`);
-  elements.age.setAttribute("aria-valuetext", ageName);
+  elements.genderOutput.value = gender.meter;
+  elements.ageOutput.value = String(age.age).padStart(2, "0");
+  elements.ageRailOutput.value = String(age.age).padStart(2, "0");
+  elements.frameCounter.textContent = `F${String(frameNumber).padStart(2, "0")} / ${FRAME_COUNT}`;
+  elements.currentForm.textContent = `${age.label} · ${gender.label} · ${person}`;
+  elements.stateDetail.textContent = `人物强度 ${Math.round(identity)}% · 独立帧 ${frameNumber}/${FRAME_COUNT}`;
+  elements.identity.setAttribute("aria-valuetext", `${person}，第 ${frameNumber} 帧`);
+  elements.gender.setAttribute("aria-valuetext", gender.label);
+  elements.age.setAttribute("aria-valuetext", `${age.label}，约 ${age.age} 岁`);
+  showIndependentFrame(source, alt);
+  preloadSeries(age.key, gender.key);
 }
-
-[elements.identity, elements.gender, elements.age].forEach((slider) => {
-  slider.addEventListener("input", render);
-});
-
+[elements.identity, elements.gender, elements.age].forEach((slider) => slider.addEventListener("input", render));
 render();
+const scheduleWarmup = window.requestIdleCallback ?? ((callback) => setTimeout(callback, 700));
+scheduleWarmup(() => {
+  preloadSeries("adult", "male");
+  preloadSeries("adult", "female");
+});

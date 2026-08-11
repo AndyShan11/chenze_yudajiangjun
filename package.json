@@ -1,7 +1,7 @@
 {
   "name": "chenze-yudajiangjun-calibrator",
   "version": "1.0.0",
-  "description": "陈泽、宇大将军、性别与年龄三轴连续人像校准器",
+  "description": "陈泽、宇大将军、性别与年龄三轴独立帧人像校准器",
   "private": false,
   "type": "module",
   "scripts": {
