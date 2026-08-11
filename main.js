@@ -7,7 +7,6 @@ const AGE_MAX = AGE_STEPS - 1;
 const elements = {
   root: document.querySelector("#calibrator"),
   portrait: document.querySelector("#portrait-frame"),
-  glasses: document.querySelector("#portrait-glasses"),
   joystick: document.querySelector("#joystick"),
   joystickOutput: document.querySelector("#joystick-output"),
   identity: document.querySelector("#identity-slider"),
@@ -132,18 +131,6 @@ function render() {
   const deltaY = ((joyTop - 88) / 100) * bounds.height;
   elements.joystick.style.setProperty("--lever-length", `${Math.hypot(deltaX, deltaY)}px`);
   elements.joystick.style.setProperty("--lever-angle", `${Math.atan2(deltaY, deltaX) * (180 / Math.PI)}deg`);
-  const tone = identity / 100;
-  const glassesChannel = (start, end) => Math.round(start + (end - start) * tone);
-  elements.glasses.style.setProperty("--glasses-color", `rgb(${glassesChannel(22, 213)} ${glassesChannel(28, 220)} ${glassesChannel(34, 226)})`);
-  const glassesTop = ageValue <= 50
-    ? 52.8 - (ageValue / 50) * 8.7
-    : 44.1 + ((ageValue - 50) / 50) * 0.4;
-  const ageAdjustedWidth = ageValue <= 50
-    ? 66 - (ageValue / 50) * 2
-    : 64 - ((ageValue - 50) / 50);
-  const glassesWidth = ageAdjustedWidth - tone * 4;
-  elements.glasses.style.setProperty("--glasses-top", `${glassesTop}%`);
-  elements.glasses.style.setProperty("--glasses-width", `${glassesWidth}%`);
   elements.identityOutput.value = String(Math.round(identity)).padStart(2, "0");
   elements.genderOutput.value = genderMeter(genderValue);
   elements.ageOutput.value = String(age).padStart(2, "0");

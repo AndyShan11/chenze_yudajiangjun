@@ -94,27 +94,6 @@ h1 span { margin: 0 .12em; color: var(--copper); font: .58em var(--font-mono); }
 .portrait-shell { width: 100%; aspect-ratio: 4 / 5; position: relative; filter: drop-shadow(0 28px 42px rgba(0,0,0,.58)); }
 .portrait-viewport { position: absolute; inset: 0; overflow: hidden; border: 1px solid rgba(255,255,255,.3); background: #bdb8af; box-shadow: inset 0 0 0 5px rgba(0,0,0,.44), inset 0 0 40px rgba(0,0,0,.2); }
 .portrait-viewport img { width: 100%; height: 100%; display: block; object-fit: cover; object-position: center; user-select: none; }
-.portrait-glasses {
-  --glasses-color: rgb(87 94 102);
-  --glasses-top: 44.1%;
-  --glasses-width: 62%;
-  position: absolute;
-  z-index: 4;
-  left: 50%;
-  top: var(--glasses-top);
-  width: var(--glasses-width);
-  height: 14.5%;
-  transform: translate(-50%,-50%);
-  pointer-events: none;
-  filter: drop-shadow(0 2px 1px rgba(0,0,0,.45));
-}
-.glasses-lens { position: absolute; top: 0; width: 43%; height: 100%; border: clamp(1.5px,.42vw,3px) solid var(--glasses-color); border-radius: 13% 13% 24% 24%; box-shadow: inset 0 0 0 1px rgba(255,255,255,.18), 0 0 1px rgba(255,255,255,.45); }
-.glasses-lens::before { content: ""; position: absolute; top: 8%; width: 18%; height: clamp(1.5px,.42vw,3px); border-radius: 999px; background: var(--glasses-color); box-shadow: 0 1px 0 rgba(255,255,255,.22); }
-.glasses-lens--left { left: 0; transform: rotate(1deg); }
-.glasses-lens--left::before { right: 100%; transform: rotate(8deg); transform-origin: right center; }
-.glasses-lens--right { right: 0; transform: rotate(-1deg); }
-.glasses-lens--right::before { left: 100%; transform: rotate(-8deg); transform-origin: left center; }
-.glasses-bridge { position: absolute; z-index: 2; left: 41.5%; top: 18%; width: 17%; height: 22%; border-top: clamp(1.5px,.42vw,3px) solid var(--glasses-color); border-radius: 50%; }
 .portrait-grade, .scan-grid { position: absolute; inset: 0; pointer-events: none; }
 .portrait-grade { background: linear-gradient(180deg, rgba(101,245,255,.035), transparent 40%, rgba(255,122,38,.06)); box-shadow: inset 0 0 58px rgba(0,0,0,.25); }
 .scan-grid { opacity: .17; background: linear-gradient(90deg, transparent 49.86%, rgba(101,245,255,.5) 50%, transparent 50.14%), linear-gradient(transparent 49.86%, rgba(255,122,38,.45) 50%, transparent 50.14%); }
