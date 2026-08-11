@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#e8e9e5" />
+    <meta name="description" content="在陈泽与宇大将军、男性与女性、婴儿与老人之间连续校准。" />
+    <title>陈宇滑动变阻器</title>
+    <link rel="icon" href="./favicon.png" />
+    <link rel="stylesheet" href="./app/globals.css" />
+  </head>
+  <body>
+    <main class="calibrator" id="calibrator">
+      <header class="masthead">
+        <div>
+          <a class="owner-link" href="https://andyshan11.github.io/" target="_blank" rel="noreferrer">
+            <span aria-hidden="true">↗</span> ANDYSHAN11.GITHUB.IO
+          </a>
+          <p class="eyebrow">IDENTITY / GENDER / AGE CALIBRATOR</p>
+          <h1>陈宇滑动变阻器</h1>
+        </div>
+        <div class="meter-bank" aria-live="polite">
+          <div><span>人物</span><output id="identity-output">34</output></div>
+          <div><span>性别</span><output id="gender-output">42</output></div>
+          <div><span>年龄</span><output id="age-output">31</output></div>
+        </div>
+      </header>
+
+      <section class="portrait-zone" aria-labelledby="current-form">
+        <p class="stage-ghost" aria-hidden="true">泽 · 将</p>
+        <div class="stage-cluster">
+          <div class="portrait-shell">
+            <div class="portrait-stack" id="portrait-stack" role="img"></div>
+            <div class="scan-grid" aria-hidden="true"></div>
+            <span class="frame-corner frame-corner--tl" aria-hidden="true"></span>
+            <span class="frame-corner frame-corner--tr" aria-hidden="true"></span>
+            <span class="frame-corner frame-corner--bl" aria-hidden="true"></span>
+            <span class="frame-corner frame-corner--br" aria-hidden="true"></span>
+            <div class="axis-line axis-line--horizontal" aria-hidden="true"></div>
+            <div class="axis-line axis-line--vertical" aria-hidden="true"></div>
+            <input id="identity-slider" class="cross-slider identity-slider" type="range" min="0" max="100" step="0.1" value="34" aria-label="人物：陈泽到宇大将军" />
+            <input id="gender-slider" class="cross-slider gender-slider" type="range" min="0" max="100" step="0.1" value="42" aria-label="性别：男性到女性" />
+            <span class="axis-label axis-label--left">陈泽</span>
+            <span class="axis-label axis-label--right">宇大将军</span>
+            <span class="axis-label axis-label--top">男</span>
+            <span class="axis-label axis-label--bottom">女</span>
+          </div>
+
+          <aside class="age-control" aria-label="年龄控制">
+            <div class="age-heading"><span>AGE</span><output id="age-rail-output">31</output></div>
+            <div class="age-rail">
+              <span class="age-label age-label--top">婴儿</span>
+              <input id="age-slider" class="age-slider" type="range" min="0" max="100" step="0.1" value="34" aria-label="年龄：婴儿到老人" />
+              <span class="age-label age-label--bottom">老人</span>
+            </div>
+          </aside>
+        </div>
+
+        <div class="stage-readout">
+          <span>当前形态</span>
+          <p class="stage-name" id="current-form">陈泽 × 宇大将军</p>
+          <span id="state-detail">中性过渡 · 31 岁</span>
+        </div>
+      </section>
+
+      <footer class="footer-note">
+        <span>拖动十字滑轨，连续校准人物与性别</span>
+        <span>开源静态站 · 无需登录</span>
+      </footer>
+    </main>
+    <script type="module" src="./main.js"></script>
+  </body>
+</html>

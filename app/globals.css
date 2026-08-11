@@ -1,11 +1,12 @@
-@import "tailwindcss";
-
 :root {
   --paper: #e8e9e5;
   --ink: #171816;
   --muted: #6d716c;
   --red: #b52b24;
   --gold: #b68c3a;
+  --font-sans: "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
+  --font-serif: "Songti SC", STSong, SimSun, serif;
+  --font-mono: "SFMono-Regular", Consolas, monospace;
   color: var(--ink);
   background: var(--paper);
   font-synthesis: none;
@@ -64,6 +65,31 @@ input { -webkit-tap-highlight-color: transparent; }
   font-family: var(--font-mono), monospace;
   font-size: 9px;
   letter-spacing: .2em;
+}
+
+.owner-link {
+  width: fit-content;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  margin: 0 0 10px;
+  padding: 5px 8px;
+  border: 1px solid color-mix(in srgb, currentColor 35%, transparent);
+  color: var(--ink);
+  background: rgba(232, 233, 229, .72);
+  font-family: var(--font-mono), monospace;
+  font-size: 8px;
+  letter-spacing: .12em;
+  text-decoration: none;
+  transition: color .16s ease, border-color .16s ease, background .16s ease;
+}
+
+.owner-link:hover,
+.owner-link:focus-visible {
+  color: #fff;
+  border-color: var(--red);
+  background: var(--red);
+  outline: none;
 }
 
 h1 {
