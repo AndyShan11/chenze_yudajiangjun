@@ -30,27 +30,35 @@
 
       <section class="portrait-zone" aria-labelledby="current-form">
         <div class="stage-cluster">
-          <div class="portrait-shell">
-            <div class="portrait-viewport">
-              <img id="portrait-frame" src="./frames/adult-neutral/10.webp" alt="成人、中性、陈泽到宇大将军第 11 帧" draggable="false" />
-              <div class="portrait-grade" aria-hidden="true"></div>
-              <div class="scan-grid" aria-hidden="true"></div>
-              <div class="frame-status" aria-hidden="true"><span>RIFE / SINGLE FRAME</span><b id="frame-counter">F11 / 31</b></div>
+          <div class="portrait-console">
+            <div class="portrait-shell">
+              <div class="portrait-viewport">
+                <img id="portrait-frame" src="./frames/adult-neutral/10.webp" alt="成人、中性、陈泽到宇大将军第 11 帧" draggable="false" />
+                <div class="portrait-grade" aria-hidden="true"></div>
+                <div class="scan-grid" aria-hidden="true"></div>
+                <div class="frame-status" aria-hidden="true"><span>RIFE / SINGLE FRAME</span><b id="frame-counter">F11 / 31</b></div>
+              </div>
+              <span class="frame-corner frame-corner--tl" aria-hidden="true"></span>
+              <span class="frame-corner frame-corner--tr" aria-hidden="true"></span>
+              <span class="frame-corner frame-corner--bl" aria-hidden="true"></span>
+              <span class="frame-corner frame-corner--br" aria-hidden="true"></span>
             </div>
-            <div class="cross-rail cross-rail--horizontal" aria-hidden="true"><span></span><i></i></div>
-            <div class="cross-rail cross-rail--vertical" aria-hidden="true"><span></span><i></i></div>
-            <div class="center-core" aria-hidden="true"><span></span></div>
-            <input id="identity-slider" class="cross-slider identity-slider" type="range" min="0" max="100" step="0.1" value="34" aria-label="人物：陈泽到宇大将军" />
-            <input id="gender-slider" class="cross-slider gender-slider" type="range" min="0" max="100" step="50" value="50" aria-label="性别：男性、中性、女性" />
-            <span class="axis-label axis-label--left"><small>00</small> 陈泽</span>
-            <span class="axis-label axis-label--right">宇大将军 <small>100</small></span>
-            <span class="axis-label axis-label--top">男 <small>M</small></span>
-            <span class="axis-label axis-label--middle">中性 <small>N</small></span>
-            <span class="axis-label axis-label--bottom">女 <small>F</small></span>
-            <span class="frame-corner frame-corner--tl" aria-hidden="true"></span>
-            <span class="frame-corner frame-corner--tr" aria-hidden="true"></span>
-            <span class="frame-corner frame-corner--bl" aria-hidden="true"></span>
-            <span class="frame-corner frame-corner--br" aria-hidden="true"></span>
+
+            <div class="joystick-panel">
+              <div class="joystick-heading"><span>DUAL AXIS GAME STICK</span><output id="joystick-output">X 34 / Y 50</output></div>
+              <div id="joystick" class="joystick" role="group" tabindex="0" aria-label="二维游戏摇杆：左右控制人物，上下控制性别">
+                <div class="joystick-cross" aria-hidden="true"><span></span><i></i></div>
+                <span class="joystick-label joystick-label--left">陈泽 <small>00</small></span>
+                <span class="joystick-label joystick-label--right"><small>100</small> 宇大将军</span>
+                <span class="joystick-label joystick-label--top">男 <small>M</small></span>
+                <span class="joystick-label joystick-label--center">中性 <small>N</small></span>
+                <span class="joystick-label joystick-label--bottom">女 <small>F</small></span>
+                <div id="joystick-stick" class="joystick-stick" aria-hidden="true"><span></span></div>
+              </div>
+              <p id="joystick-help">拖动摇杆或使用方向键；按 Enter 回到正中</p>
+              <input id="identity-slider" class="visually-hidden" type="range" min="0" max="100" step="0.1" value="34" tabindex="-1" aria-hidden="true" />
+              <input id="gender-slider" class="visually-hidden" type="range" min="0" max="100" step="0.1" value="50" tabindex="-1" aria-hidden="true" />
+            </div>
           </div>
 
           <aside class="age-control" aria-label="年龄变阻器">
@@ -72,7 +80,7 @@
         </div>
       </section>
       <footer class="footer-note">
-        <span><b></b> 拖动十字轨道校准人物与性别；右侧轨道切换年龄</span>
+        <span><b></b> 拖动图片下方的游戏摇杆校准人物与性别；右侧轨道切换年龄</span>
         <span>RIFE 4.6 插帧 · 单帧显示 · 无透明叠影</span>
       </footer>
     </main>
