@@ -1,19 +1,11 @@
 const FRAME_COUNT = 31;
-const genderStates = [
-  { value: 0, key: "male", label: "男性", meter: "男" },
-  { value: 50, key: "neutral", label: "中性", meter: "中" },
-  { value: 100, key: "female", label: "女性", meter: "女" },
-];
-const ageStates = [
-  { value: 0, key: "baby", label: "婴儿", age: 1 },
-  { value: 50, key: "adult", label: "成人", age: 31 },
-  { value: 100, key: "elder", label: "老人", age: 88 },
-];
+const GRID_STEPS = 9;
+const GRID_MAX = GRID_STEPS - 1;
+
 const elements = {
   root: document.querySelector("#calibrator"),
   portrait: document.querySelector("#portrait-frame"),
   joystick: document.querySelector("#joystick"),
-  joystickStick: document.querySelector("#joystick-stick"),
   joystickOutput: document.querySelector("#joystick-output"),
   identity: document.querySelector("#identity-slider"),
   gender: document.querySelector("#gender-slider"),
@@ -26,26 +18,37 @@ const elements = {
   currentForm: document.querySelector("#current-form"),
   stateDetail: document.querySelector("#state-detail"),
 };
+
 const preloadedSeries = new Set();
 let requestedFrame = 0;
 let activePointer = null;
 
-function nearestState(states, value) {
-  return states.reduce((nearest, state) => Math.abs(state.value - value) < Math.abs(nearest.value - value) ? state : nearest);
+function clamp(value, minimum, maximum) {
+  return Math.min(maximum, Math.max(minimum, value));
 }
-function frameSource(age, gender, index) {
-  return `./frames/${age}-${gender}/${String(index).padStart(2, "0")}.webp`;
+
+function gridIndex(value) {
+  return Math.round((clamp(value, 0, 100) / 100) * GRID_MAX);
 }
-function preloadSeries(age, gender) {
-  const key = `${age}-${gender}`;
+
+function frameSource(ageIndex, genderIndex, identityIndex) {
+  const age = String(ageIndex).padStart(2, "0");
+  const gender = String(genderIndex).padStart(2, "0");
+  const identity = String(identityIndex).padStart(2, "0");
+  return `./lattice/a${age}-g${gender}/${identity}.webp`;
+}
+
+function preloadSeries(ageIndex, genderIndex) {
+  const key = `${ageIndex}-${genderIndex}`;
   if (preloadedSeries.has(key)) return;
   preloadedSeries.add(key);
   for (let index = 0; index < FRAME_COUNT; index += 1) {
     const image = new Image();
     image.decoding = "async";
-    image.src = frameSource(age, gender, index);
+    image.src = frameSource(ageIndex, genderIndex, index);
   }
 }
+
 function showIndependentFrame(source, alt) {
   const request = ++requestedFrame;
   const image = new Image();
@@ -59,6 +62,7 @@ function showIndependentFrame(source, alt) {
   if (image.complete) commit();
   else image.decode().then(commit).catch(commit);
 }
+
 function identityLabel(value) {
   if (value <= 12) return "陈泽";
   if (value < 44) return "陈泽偏置";
@@ -66,38 +70,71 @@ function identityLabel(value) {
   if (value < 88) return "宇大将军偏置";
   return "宇大将军";
 }
+
+function genderLabel(value) {
+  if (value <= 6) return "男性";
+  if (value < 44) return `男性 → 中性 ${Math.round((value / 50) * 100)}%`;
+  if (value <= 56) return "中性";
+  if (value < 94) return `中性 → 女性 ${Math.round(((value - 50) / 50) * 100)}%`;
+  return "女性";
+}
+
+function genderMeter(value) {
+  if (value <= 6) return "男";
+  if (value < 44) return "男·中";
+  if (value <= 56) return "中";
+  if (value < 94) return "中·女";
+  return "女";
+}
+
+function displayAge(value) {
+  if (value <= 50) return Math.round(1 + (value / 50) * 30);
+  return Math.round(31 + ((value - 50) / 50) * 57);
+}
+
+function ageLabel(age) {
+  if (age <= 3) return "婴儿";
+  if (age <= 12) return "儿童";
+  if (age <= 18) return "少年";
+  if (age <= 35) return "青年";
+  if (age <= 55) return "中年";
+  if (age <= 69) return "年长";
+  return "老人";
+}
+
 function render() {
   const identity = Number(elements.identity.value);
   const genderValue = Number(elements.gender.value);
-  const gender = nearestState(genderStates, genderValue);
-  const age = nearestState(ageStates, Number(elements.age.value));
+  const ageValue = Number(elements.age.value);
+  const gender = genderLabel(genderValue);
+  const age = displayAge(ageValue);
+  const lifeStage = ageLabel(age);
   const frameIndex = Math.round((identity / 100) * (FRAME_COUNT - 1));
   const frameNumber = frameIndex + 1;
+  const genderIndex = gridIndex(genderValue);
+  const ageIndex = gridIndex(ageValue);
   const person = identityLabel(identity);
-  const source = frameSource(age.key, gender.key, frameIndex);
-  const alt = `${age.label}、${gender.label}、${person}，第 ${frameNumber} 帧`;
+  const source = frameSource(ageIndex, genderIndex, frameIndex);
+  const alt = `${age} 岁、${gender}、${person}，第 ${frameNumber} 帧`;
+
   elements.root.style.setProperty("--identity", identity / 100);
-  elements.root.style.setProperty("--gender", gender.value / 100);
-  elements.root.style.setProperty("--age", age.value / 100);
+  elements.root.style.setProperty("--gender", genderValue / 100);
+  elements.root.style.setProperty("--age", ageValue / 100);
   elements.joystick.style.setProperty("--joy-left", `${18 + identity * 0.64}%`);
   elements.joystick.style.setProperty("--joy-top", `${22 + genderValue * 0.56}%`);
   elements.identityOutput.value = String(Math.round(identity)).padStart(2, "0");
-  elements.genderOutput.value = gender.meter;
-  elements.ageOutput.value = String(age.age).padStart(2, "0");
-  elements.ageRailOutput.value = String(age.age).padStart(2, "0");
+  elements.genderOutput.value = genderMeter(genderValue);
+  elements.ageOutput.value = String(age).padStart(2, "0");
+  elements.ageRailOutput.value = String(age).padStart(2, "0");
   elements.joystickOutput.value = `X ${String(Math.round(identity)).padStart(2, "0")} / Y ${String(Math.round(genderValue)).padStart(2, "0")}`;
   elements.frameCounter.textContent = `F${String(frameNumber).padStart(2, "0")} / ${FRAME_COUNT}`;
-  elements.currentForm.textContent = `${age.label} · ${gender.label} · ${person}`;
-  elements.stateDetail.textContent = `人物强度 ${Math.round(identity)}% · 独立帧 ${frameNumber}/${FRAME_COUNT}`;
-  elements.identity.setAttribute("aria-valuetext", `${person}，第 ${frameNumber} 帧`);
-  elements.gender.setAttribute("aria-valuetext", gender.label);
-  elements.age.setAttribute("aria-valuetext", `${age.label}，约 ${age.age} 岁`);
-  elements.joystick.setAttribute("aria-label", `二维游戏摇杆：人物 ${Math.round(identity)}%，${gender.label}`);
+  elements.currentForm.textContent = `${age} 岁 · ${gender} · ${person}`;
+  elements.stateDetail.textContent = `${lifeStage} · 人物强度 ${Math.round(identity)}% · 网格 ${ageIndex + 1}/${GRID_STEPS} × ${genderIndex + 1}/${GRID_STEPS}`;
+  elements.joystick.setAttribute("aria-label", `二维游戏摇杆：人物 ${Math.round(identity)}%，${gender}`);
+  elements.age.setAttribute("aria-valuetext", `${age} 岁，${lifeStage}`);
+
   showIndependentFrame(source, alt);
-  preloadSeries(age.key, gender.key);
-}
-function clamp(value, minimum, maximum) {
-  return Math.min(maximum, Math.max(minimum, value));
+  preloadSeries(ageIndex, genderIndex);
 }
 
 function updateJoystickFromPointer(event) {
@@ -106,12 +143,6 @@ function updateJoystickFromPointer(event) {
   const y = clamp((event.clientY - bounds.top) / bounds.height, 0, 1);
   elements.identity.value = String(x * 100);
   elements.gender.value = String(y * 100);
-  render();
-}
-
-function snapGender() {
-  const gender = nearestState(genderStates, Number(elements.gender.value));
-  elements.gender.value = String(gender.value);
   render();
 }
 
@@ -131,27 +162,23 @@ function finishJoystick(event) {
   if (event.pointerId !== activePointer) return;
   activePointer = null;
   elements.joystick.classList.remove("is-active");
-  snapGender();
 }
 
 elements.joystick.addEventListener("pointerup", finishJoystick);
 elements.joystick.addEventListener("pointercancel", finishJoystick);
 
 elements.joystick.addEventListener("keydown", (event) => {
-  const frameStep = 100 / (FRAME_COUNT - 1);
-  const currentGender = nearestState(genderStates, Number(elements.gender.value));
-  const genderIndex = genderStates.indexOf(currentGender);
+  const identityStep = 100 / (FRAME_COUNT - 1);
+  const gridStep = 100 / GRID_MAX;
   let handled = true;
-
-  if (event.key === "ArrowLeft") elements.identity.value = String(clamp(Number(elements.identity.value) - frameStep, 0, 100));
-  else if (event.key === "ArrowRight") elements.identity.value = String(clamp(Number(elements.identity.value) + frameStep, 0, 100));
-  else if (event.key === "ArrowUp") elements.gender.value = String(genderStates[Math.max(0, genderIndex - 1)].value);
-  else if (event.key === "ArrowDown") elements.gender.value = String(genderStates[Math.min(genderStates.length - 1, genderIndex + 1)].value);
+  if (event.key === "ArrowLeft") elements.identity.value = String(clamp(Number(elements.identity.value) - identityStep, 0, 100));
+  else if (event.key === "ArrowRight") elements.identity.value = String(clamp(Number(elements.identity.value) + identityStep, 0, 100));
+  else if (event.key === "ArrowUp") elements.gender.value = String(clamp(Number(elements.gender.value) - gridStep, 0, 100));
+  else if (event.key === "ArrowDown") elements.gender.value = String(clamp(Number(elements.gender.value) + gridStep, 0, 100));
   else if (event.key === "Enter" || event.key === " ") {
     elements.identity.value = "50";
     elements.gender.value = "50";
   } else handled = false;
-
   if (!handled) return;
   event.preventDefault();
   render();
@@ -159,8 +186,8 @@ elements.joystick.addEventListener("keydown", (event) => {
 
 [elements.identity, elements.gender, elements.age].forEach((slider) => slider.addEventListener("input", render));
 render();
+
 const scheduleWarmup = window.requestIdleCallback ?? ((callback) => setTimeout(callback, 700));
 scheduleWarmup(() => {
-  preloadSeries("adult", "male");
-  preloadSeries("adult", "female");
+  for (const [age, gender] of [[4,3],[4,5],[3,4],[5,4]]) preloadSeries(age, gender);
 });
