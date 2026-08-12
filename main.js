@@ -148,7 +148,7 @@ function render() {
   elements.root.style.setProperty("--gender", genderValue / 100);
   elements.root.style.setProperty("--age", ageValue / 100);
   const joyLeft = 17 + identity * 0.66;
-  const joyTop = 15 + genderValue * 0.54;
+  const joyTop = 15 + genderValue * 0.45;
   const joystickPosition = `${joyLeft}:${joyTop}`;
   if (joystickPosition !== lastJoystickPosition) {
     lastJoystickPosition = joystickPosition;
@@ -156,7 +156,7 @@ function render() {
     elements.joystick.style.setProperty("--joy-top", `${joyTop}%`);
     const bounds = elements.joystick.getBoundingClientRect();
     const deltaX = ((joyLeft - 50) / 100) * bounds.width;
-    const deltaY = ((joyTop - 88) / 100) * bounds.height;
+    const deltaY = ((joyTop - 74) / 100) * bounds.height;
     elements.joystick.style.setProperty("--lever-length", `${Math.hypot(deltaX, deltaY)}px`);
     elements.joystick.style.setProperty("--lever-angle", `${Math.atan2(deltaY, deltaX) * (180 / Math.PI)}deg`);
   }
