@@ -23,7 +23,11 @@ const elements = {
 
 const preloadedSeries = new Set();
 let requestedFrame = 0;
+let requestedSource = "";
 let activePointer = null;
+let preloadTimer = 0;
+let renderFrame = 0;
+let lastJoystickPosition = "";
 
 function clamp(value, minimum, maximum) {
   return Math.min(maximum, Math.max(minimum, value));
@@ -52,6 +56,11 @@ function preloadSeries(ageIndex, genderIndex) {
 }
 
 function showIndependentFrame(source, alt) {
+  if (source === requestedSource) {
+    elements.portrait.alt = alt;
+    return;
+  }
+  requestedSource = source;
   const request = ++requestedFrame;
   const image = new Image();
   image.decoding = "async";
@@ -63,6 +72,22 @@ function showIndependentFrame(source, alt) {
   };
   if (image.complete) commit();
   else image.decode().then(commit).catch(commit);
+}
+
+function scheduleSeriesPreload(ageIndex, genderIndex) {
+  window.clearTimeout(preloadTimer);
+  preloadTimer = window.setTimeout(() => {
+    const runWhenIdle = window.requestIdleCallback ?? ((callback) => window.setTimeout(callback, 250));
+    runWhenIdle(() => preloadSeries(ageIndex, genderIndex), { timeout: 1200 });
+  }, 450);
+}
+
+function scheduleRender() {
+  if (renderFrame) return;
+  renderFrame = window.requestAnimationFrame(() => {
+    renderFrame = 0;
+    render();
+  });
 }
 
 function identityLabel(value) {
@@ -124,13 +149,17 @@ function render() {
   elements.root.style.setProperty("--age", ageValue / 100);
   const joyLeft = 17 + identity * 0.66;
   const joyTop = 15 + genderValue * 0.54;
-  elements.joystick.style.setProperty("--joy-left", `${joyLeft}%`);
-  elements.joystick.style.setProperty("--joy-top", `${joyTop}%`);
-  const bounds = elements.joystick.getBoundingClientRect();
-  const deltaX = ((joyLeft - 50) / 100) * bounds.width;
-  const deltaY = ((joyTop - 88) / 100) * bounds.height;
-  elements.joystick.style.setProperty("--lever-length", `${Math.hypot(deltaX, deltaY)}px`);
-  elements.joystick.style.setProperty("--lever-angle", `${Math.atan2(deltaY, deltaX) * (180 / Math.PI)}deg`);
+  const joystickPosition = `${joyLeft}:${joyTop}`;
+  if (joystickPosition !== lastJoystickPosition) {
+    lastJoystickPosition = joystickPosition;
+    elements.joystick.style.setProperty("--joy-left", `${joyLeft}%`);
+    elements.joystick.style.setProperty("--joy-top", `${joyTop}%`);
+    const bounds = elements.joystick.getBoundingClientRect();
+    const deltaX = ((joyLeft - 50) / 100) * bounds.width;
+    const deltaY = ((joyTop - 88) / 100) * bounds.height;
+    elements.joystick.style.setProperty("--lever-length", `${Math.hypot(deltaX, deltaY)}px`);
+    elements.joystick.style.setProperty("--lever-angle", `${Math.atan2(deltaY, deltaX) * (180 / Math.PI)}deg`);
+  }
   elements.identityOutput.value = String(Math.round(identity)).padStart(2, "0");
   elements.genderOutput.value = genderMeter(genderValue);
   elements.ageOutput.value = String(age).padStart(2, "0");
@@ -143,7 +172,7 @@ function render() {
   elements.age.setAttribute("aria-valuetext", `${age} 岁，${lifeStage}`);
 
   showIndependentFrame(source, alt);
-  preloadSeries(ageIndex, genderIndex);
+  scheduleSeriesPreload(ageIndex, genderIndex);
 }
 
 function updateJoystickFromPointer(event) {
@@ -152,7 +181,7 @@ function updateJoystickFromPointer(event) {
   const y = clamp((event.clientY - bounds.top) / bounds.height, 0, 1);
   elements.identity.value = String(x * 100);
   elements.gender.value = String(y * 100);
-  render();
+  scheduleRender();
 }
 
 elements.joystick.addEventListener("pointerdown", (event) => {
@@ -190,14 +219,12 @@ elements.joystick.addEventListener("keydown", (event) => {
   } else handled = false;
   if (!handled) return;
   event.preventDefault();
-  render();
+  scheduleRender();
 });
 
-[elements.identity, elements.gender, elements.age].forEach((slider) => slider.addEventListener("input", render));
-window.addEventListener("resize", render);
+[elements.identity, elements.gender, elements.age].forEach((slider) => slider.addEventListener("input", scheduleRender));
+window.addEventListener("resize", () => {
+  lastJoystickPosition = "";
+  scheduleRender();
+});
 render();
-
-const scheduleWarmup = window.requestIdleCallback ?? ((callback) => setTimeout(callback, 700));
-scheduleWarmup(() => {
-  for (const [age, gender] of [[8,3],[8,5],[7,4],[9,4]]) preloadSeries(age, gender);
-});
